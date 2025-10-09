@@ -1,0 +1,295 @@
+html
+  head
+    meta(charset="utf-8")
+    title= title
+    link(rel="stylesheet", href="/public/css/style.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css")
+  body
+    header
+      h1
+        i.fas.fa-book
+        |  #{title}
+      nav
+        a(href="/")
+          i.fas.fa-home
+          |  Главная
+        a(href="/books")
+          i.fas.fa-list
+          |  Все книги
+        a(href="/books/add/new")
+          i.fas.fa-plus-circle
+          |  Добавить книгу
+    
+    main
+      //- Статистика
+      .library-stats
+        h2
+          i.fas.fa-chart-bar
+          |  Статистика библиотеки
+        .stats-grid
+          .stat-item
+            i.fas.fa-book.total
+            .stat-info
+              .stat-number #{statistics.totalBooks}
+              .stat-label Всего книг
+          .stat-item
+            i.fas.fa-check-circle.available
+            .stat-info
+              .stat-number #{statistics.availableBooks}
+              .stat-label Доступно
+          .stat-item
+            i.fas.fa-user-check.borrowed
+            .stat-info
+              .stat-number #{statistics.borrowedBooks}
+              .stat-label Выдано
+          .stat-item
+            i.fas.fa-clock.expiring
+            .stat-info
+              .stat-number #{statistics.expiringBooks}
+              .stat-label Скоро срок
+
+      //- Фильтры и сортировка
+      .filters-section
+        h3
+          i.fas.fa-filter
+          |  Фильтры и сортировка
+        
+        .filter-controls
+          .filter-group
+            label
+              i.fas.fa-filter
+              |  Фильтр:
+            select#filterSelect(onchange="applyFilters()")
+              option(value="all" selected=filter === 'all') Все книги
+              option(value="available" selected=filter === 'available') Доступные
+              option(value="borrowed" selected=filter === 'borrowed') Выданные
+              option(value="expiring" selected=filter === 'expiring') Скоро срок
+            
+          .sort-group
+            label
+              i.fas.fa-sort
+              |  Сортировка:
+            select#sortSelect(onchange="applyFilters()")
+              option(value="title" selected=sort === 'title') По названию
+              option(value="author" selected=sort === 'author') По автору
+              option(value="year" selected=sort === 'year') По году
+              option(value="dueDate" selected=sort === 'dueDate') По дате возврата
+
+      //- Список книг
+      .books-section
+        h3
+          i.fas.fa-books
+          |  #{message}
+        
+        .books-container
+          each book in books
+            .book-card(id=`book-${book.id}`)
+              .book-header
+                h4
+                  i.fas.fa-book
+                  |  #{book.title}
+                .book-actions
+                  if book.isAvailable
+                    span.status.available
+                      i.fas.fa-check-circle
+                      |  Доступна
+                  else
+                    span.status.borrowed
+                      i.fas.fa-user-clock
+                      |  Выдана: #{book.borrower}
+                  
+                  .action-buttons
+                    button.btn.btn-info(onclick=`showBookDetails('${book.id}')`)
+                      i.fas.fa-info
+                    if book.isAvailable
+                      button.btn.btn-success(onclick=`showBorrowForm('${book.id}')`)
+                        i.fas.fa-hand-holding
+                    else
+                      button.btn.btn-warning(onclick=`returnBook('${book.id}')`)
+                        i.fas.fa-undo
+                    button.btn.btn-danger(onclick=`confirmDelete('${book.id}', '${book.title}')`)
+                      i.fas.fa-trash
+
+              .book-details
+                p
+                  i.fas.fa-user-edit
+                  |  Автор: #{book.author}
+                p
+                  i.fas.fa-calendar
+                  |  Год: #{book.year}
+                p
+                  i.fas.fa-tag
+                  |  Жанр: #{book.genre}
+                
+                if !book.isAvailable && book.dueDate
+                  p
+                    i.fas.fa-clock
+                    |  Вернуть до: #{book.dueDate}
+                    //- Убрали вызов функции isExpiring из Pug
+                    span.urgent(data-due-date=book.dueDate) (Срочно!)
+
+      //- Модальные окна
+      #borrowModal.modal
+        .modal-content
+          span.close &times;
+          h3
+            i.fas.fa-hand-holding
+            |  Выдать книгу
+          form#borrowForm
+            input(type="hidden", id="borrowBookId")
+            .form-group
+              label
+                i.fas.fa-user
+                |  Читатель:
+              input(type="text", id="borrowerName", required, placeholder="Введите имя читателя")
+            .form-group
+              label
+                i.fas.fa-calendar
+                |  Дата возврата:
+              input(type="date", id="dueDate", required)
+            button.btn.btn-success(type="submit")
+              i.fas.fa-check
+              |  Выдать книгу
+
+      #deleteModal.modal
+        .modal-content
+          span.close &times;
+          h3
+            i.fas.fa-exclamation-triangle
+            |  Подтверждение удаления
+          p Вы уверены, что хотите удалить книгу "<span id="deleteBookTitle"></span>"?
+          input(type="hidden", id="deleteBookId")
+          .modal-actions
+            button.btn.btn-secondary(onclick="closeModal('deleteModal')")
+              i.fas.fa-times
+              |  Отмена
+            button.btn.btn-danger(onclick="deleteBook()")
+              i.fas.fa-trash
+              |  Удалить
+
+    script.
+      //- Функция для проверки срочности возврата (теперь на клиенте)
+      function isExpiring(dueDate) {
+        if (!dueDate) return false;
+        const now = new Date();
+        const due = new Date(dueDate);
+        const diffTime = due - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 7 && diffDays > 0;
+      }
+
+      //- Показываем/скрываем срочные метки после загрузки страницы
+      document.addEventListener('DOMContentLoaded', function() {
+        const urgentSpans = document.querySelectorAll('.urgent');
+        urgentSpans.forEach(span => {
+          const dueDate = span.getAttribute('data-due-date');
+          if (!isExpiring(dueDate)) {
+            span.style.display = 'none';
+          }
+        });
+      });
+
+      //- Применение фильтров
+      function applyFilters() {
+        const filter = document.getElementById('filterSelect').value;
+        const sort = document.getElementById('sortSelect').value;
+        window.location.href = `/books?filter=${filter}&sort=${sort}`;
+      }
+
+      //- Показать форму выдачи
+      function showBorrowForm(bookId) {
+        document.getElementById('borrowBookId').value = bookId;
+        document.getElementById('borrowModal').style.display = 'block';
+        //- Установим минимальную дату - сегодня
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('dueDate').min = today;
+      }
+
+      //- Подтверждение удаления
+      function confirmDelete(bookId, bookTitle) {
+        document.getElementById('deleteBookId').value = bookId;
+        document.getElementById('deleteBookTitle').textContent = bookTitle;
+        document.getElementById('deleteModal').style.display = 'block';
+      }
+
+      //- Удаление книги
+      function deleteBook() {
+        const bookId = document.getElementById('deleteBookId').value;
+        
+        fetch(`/books/${bookId}/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            document.getElementById(`book-${bookId}`).remove();
+            closeModal('deleteModal');
+            //- Обновим статистику
+            location.reload();
+          } else {
+            alert('Ошибка: ' + data.message);
+          }
+        });
+      }
+
+      //- Вернуть книгу
+      function returnBook(bookId) {
+        if (confirm('Вернуть книгу в библиотеку?')) {
+          fetch(`/books/${bookId}/return`, {
+            method: 'POST'
+          })
+          .then(response => response.json())
+          .then(data => {
+            alert(data.message);
+            location.reload();
+          });
+        }
+      }
+
+      //- Обработка формы выдачи
+      document.getElementById('borrowForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const bookId = document.getElementById('borrowBookId').value;
+        const borrower = document.getElementById('borrowerName').value;
+        const dueDate = document.getElementById('dueDate').value;
+
+        fetch(`/books/${bookId}/borrow`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ borrower, dueDate })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            closeModal('borrowModal');
+            location.reload();
+          } else {
+            alert('Ошибка: ' + data.message);
+          }
+        });
+      });
+
+      //- Закрытие модальных окон
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+      }
+
+      //- Закрытие по клику вне модального окна
+      window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+          if (event.target === modal) {
+            modal.style.display = 'none';
+          }
+        }
+      }
+
+      //- Закрытие по кнопке X
+      document.querySelectorAll('.close').forEach(closeBtn => {
+        closeBtn.onclick = function() {
+          this.closest('.modal').style.display = 'none';
+        };
+      });

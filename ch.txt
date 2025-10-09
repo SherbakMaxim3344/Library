@@ -1,0 +1,22 @@
+node app.js
+
+
+// 1. Подключаем модуль express
+const express = require('express');
+
+// 2. Создаем экземпляр приложения (наш сервер)
+const app = express();
+
+// 3. Определяем обработчик для GET-запроса на корневой маршрут ('/')
+app.get('/', (req, res) => {
+  // Когда пользователь заходит на "http://localhost:3000/", сервер отправляет эту строку
+  res.send('Hello World');
+});
+
+// 4. Запускаем сервер на порту 3000
+app.listen(3001, () => {
+  console.log('Сервер запущен по адресу http://localhost:3001');
+});
+
+lsof -i :3001
+pkill -f node

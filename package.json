@@ -1,0 +1,14 @@
+{
+  "name": "shcherbak_maxim_lb2",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Лабораторная работа - Библиотека книг",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pug": "^3.0.3"
+  }
+}

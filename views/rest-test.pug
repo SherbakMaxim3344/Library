@@ -1,0 +1,122 @@
+html
+  head
+    title Тестирование REST API
+    style.
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+      button { margin: 5px; padding: 8px 15px; }
+      pre { background: #f5f5f5; padding: 10px; overflow: auto; }
+  body
+    h1 Тестирование REST API
+    
+    .section
+      h2 Группы (Groups API)
+      button(onclick="getGroups()") GET Все группы
+      button(onclick="getGroup(1)") GET Группа 1
+      button(onclick="createGroup()") POST Создать группу
+      button(onclick="updateGroup(2)") PUT Обновить группу 2
+      button(onclick="deleteGroup(3)") DELETE Удалить группу 3
+    
+    .section
+      h2 Книги (Books API)
+      button(onclick="getBooks()") GET Все книги
+      button(onclick="getBook(1)") GET Книга 1
+      button(onclick="createBook()") POST Создать книгу
+      button(onclick="borrowBook(1)") POST Выдать книгу
+      button(onclick="returnBook(1)") POST Вернуть книгу
+    
+    .section
+      h2 Результат:
+      pre#result Нажмите кнопку для выполнения запроса...
+    
+    script.
+      async function makeRequest(url, options = {}) {
+        try {
+          const response = await fetch(url, {
+            headers: {
+              'Content-Type': 'application/json',
+              ...options.headers
+            },
+            ...options
+          });
+          
+          const result = await response.json();
+          document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+        } catch (error) {
+          document.getElementById('result').textContent = 'Ошибка: ' + error.message;
+        }
+      }
+      
+      // Groups API
+      function getGroups() {
+        makeRequest('/api/groups');
+      }
+      
+      function getGroup(id) {
+        makeRequest(`/api/groups/${id}`);
+      }
+      
+      function createGroup() {
+        makeRequest('/api/groups', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: '5312',
+            students: 20,
+            rating: 4.5
+          })
+        });
+      }
+      
+      function updateGroup(id) {
+        makeRequest(`/api/groups/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name: '5303-updated',
+            students: 16,
+            rating: 4.8
+          })
+        });
+      }
+      
+      function deleteGroup(id) {
+        makeRequest(`/api/groups/${id}`, {
+          method: 'DELETE'
+        });
+      }
+      
+      // Books API
+      function getBooks() {
+        makeRequest('/api/books');
+      }
+      
+      function getBook(id) {
+        makeRequest(`/api/books/${id}`);
+      }
+      
+      function createBook() {
+        makeRequest('/api/books', {
+          method: 'POST',
+          body: JSON.stringify({
+            title: 'Новая книга через REST',
+            author: 'REST Author',
+            year: 2024,
+            genre: 'Программирование'
+          })
+        });
+      }
+      
+      function borrowBook(id) {
+        makeRequest(`/api/books/${id}/borrow`, {
+          method: 'POST',
+          body: JSON.stringify({
+            borrower: 'Иван Тестов',
+            dueDate: '2024-12-31'
+          })
+        });
+      }
+      
+      function returnBook(id) {
+        makeRequest(`/api/books/${id}/return`, {
+          method: 'POST'
+        });
+      }

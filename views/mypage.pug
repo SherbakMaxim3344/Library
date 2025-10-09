@@ -1,0 +1,71 @@
+html
+  head
+    meta(charset="utf-8")
+    title= title
+    
+    link(rel="stylesheet", href="/public/css/style.css")
+    //- Подключаем Font Awesome локально
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css")
+  body
+    header
+      h1
+        i.fas.fa-home
+        |  #{title}
+      nav
+        a(href="/")
+          i.fas.fa-home
+          |  Главная
+        |  
+        a(href="/page")
+          i.fas.fa-file
+          |  Вторая страница
+        |  
+        a(href="/about")
+          i.fas.fa-info-circle
+          |  О нас
+        |  
+        a(href="/books")
+          i.fas.fa-book
+          |  Книги
+    
+    main
+      h2
+        i.fas.fa-bell
+        |  #{message}
+      
+      - if (value === 1)
+        p.alert
+          i.fas.fa-star
+          |  Добро пожаловать в первый раз!
+      - else if (value > 1)
+        p.alert
+          i.fas.fa-redo
+          |  Вы здесь были уже #{value} раз(а)!
+
+      //- Демонстрация различных иконок
+      .icons-demo
+        h3
+          i.fas.fa-icons
+          |  Демонстрация иконок:
+        
+        .icon-grid
+          .icon-item
+            i.fas.fa-user
+            span Пользователь
+          .icon-item
+            i.fas.fa-envelope
+            span Почта
+          .icon-item
+            i.fas.fa-phone
+            span Телефон
+          .icon-item
+            i.fas.fa-cog
+            span Настройки
+          .icon-item
+            i.fas.fa-search
+            span Поиск
+          .icon-item
+            i.fas.fa-heart
+            span Избранное
+
+    script(src="/public/js/script.js")

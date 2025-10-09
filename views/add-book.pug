@@ -1,0 +1,59 @@
+html
+  head
+    meta(charset="utf-8")
+    title= title
+    link(rel="stylesheet", href="/public/css/style.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css")
+  body
+    header
+      h1
+        i.fas.fa-plus-circle
+        |  #{title}
+      nav
+        a(href="/books")
+          i.fas.fa-arrow-left
+          |  Назад к списку
+    
+    main
+      .form-container
+        form(action="/books/add", method="POST")
+          .form-group
+            label
+              i.fas.fa-book
+              |  Название книги:
+            input(type="text", name="title", required, placeholder="Введите название книги")
+          
+          .form-group
+            label
+              i.fas.fa-user-edit
+              |  Автор:
+            input(type="text", name="author", required, placeholder="Введите автора")
+          
+          .form-group
+            label
+              i.fas.fa-calendar
+              |  Год издания:
+            input(type="number", name="year", required, min="1000", max="2024", value="2024")
+          
+          .form-group
+            label
+              i.fas.fa-tag
+              |  Жанр:
+            select(name="genre", required)
+              option(value="") Выберите жанр
+              option(value="Программирование") Программирование
+              option(value="Художественная") Художественная литература
+              option(value="Научная") Научная литература
+              option(value="Классика") Классика
+              option(value="Фантастика") Фантастика
+              option(value="Детектив") Детектив
+              option(value="История") История
+              option(value="Психология") Психология
+          
+          .form-actions
+            button.btn.btn-success(type="submit")
+              i.fas.fa-plus
+              |  Добавить книгу
+            a.btn.btn-secondary(href="/books")
+              i.fas.fa-times
+              |  Отмена

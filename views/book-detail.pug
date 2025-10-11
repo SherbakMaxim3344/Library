@@ -1,0 +1,223 @@
+html
+  head
+    meta(charset="utf-8")
+    title= title
+    link(rel="stylesheet", href="/public/css/style.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css")
+  body
+    header
+      h1
+        i.fas.fa-book
+        |  #{title}
+      nav
+        a(href="/books")
+          i.fas.fa-arrow-left
+          |  Назад к списку
+    
+    main
+      .book-detail-container
+        .book-info
+          h2
+            i.fas.fa-info-circle
+            |  Информация о книге
+          
+          .info-grid
+            .info-item
+              strong
+                i.fas.fa-book
+                |  Название:
+              span #{book.title}
+            
+            .info-item
+              strong
+                i.fas.fa-user-edit
+                |  Автор:
+              span #{book.author}
+            
+            .info-item
+              strong
+                i.fas.fa-calendar
+                |  Год издания:
+              span #{book.year}
+            
+            .info-item
+              strong
+                i.fas.fa-tag
+                |  Жанр:
+              span #{book.genre}
+            
+            .info-item
+              strong
+                i.fas.fa-clock
+                |  Добавлена:
+              span #{book.addedDate || 'Не указано'}
+          
+          .status-section
+            if book.isAvailable
+              .status.available
+                i.fas.fa-check-circle
+                |  Книга доступна в библиотеке
+            else
+              .status.borrowed
+                i.fas.fa-user-clock
+                |  Книга выдана
+              .borrower-info
+                strong Читатель: 
+                span #{book.borrower}
+                br
+                strong Вернуть до: 
+                span #{book.dueDate}
+        
+        .actions-section
+          h3
+            i.fas.fa-cogs
+            |  Действия
+          
+          if book.isAvailable
+            button.btn.btn-success(onclick=`showBorrowForm('${book.id}')`)
+              i.fas.fa-hand-holding
+              |  Выдать книгу
+          else
+            button.btn.btn-warning(onclick=`returnBook('${book.id}')`)
+              i.fas.fa-undo
+              |  Вернуть книгу
+          
+          button.btn.btn-danger(onclick=`confirmDelete('${book.id}', '${book.title}')`)
+            i.fas.fa-trash
+            |  Удалить книгу
+
+      //- Модальное окно выдачи книги
+      #borrowModal.modal
+        .modal-content
+          span.close &times;
+          h3
+            i.fas.fa-hand-holding
+            |  Выдать книгу
+          form#borrowForm
+            input(type="hidden", id="borrowBookId", value=book.id)
+            .form-group
+              label
+                i.fas.fa-user
+                |  Читатель:
+              input(type="text", id="borrowerName", required, placeholder="Введите имя читателя")
+            .form-group
+              label
+                i.fas.fa-calendar
+                |  Дата возврата:
+              input(type="date", id="dueDate", required)
+            button.btn.btn-success(type="submit")
+              i.fas.fa-check
+              |  Выдать книгу
+
+      //- Модальное окно подтверждения удаления
+      #deleteModal.modal
+        .modal-content
+          span.close &times;
+          h3
+            i.fas.fa-exclamation-triangle
+            |  Подтверждение удаления
+          p Вы уверены, что хотите удалить книгу "<span id="deleteBookTitle"></span>"?
+          input(type="hidden", id="deleteBookId")
+          .modal-actions
+            button.btn.btn-secondary(onclick="closeModal('deleteModal')")
+              i.fas.fa-times
+              |  Отмена
+            button.btn.btn-danger(onclick="deleteBook()")
+              i.fas.fa-trash
+              |  Удалить
+
+    script.
+      //- Показать форму выдачи
+      function showBorrowForm(bookId) {
+        document.getElementById('borrowBookId').value = bookId;
+        document.getElementById('borrowModal').style.display = 'block';
+        //- Установим минимальную дату - сегодня
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('dueDate').min = today;
+      }
+
+      //- Подтверждение удаления
+      function confirmDelete(bookId, bookTitle) {
+        document.getElementById('deleteBookId').value = bookId;
+        document.getElementById('deleteBookTitle').textContent = bookTitle;
+        document.getElementById('deleteModal').style.display = 'block';
+      }
+
+      //- Удаление книги
+      function deleteBook() {
+        const bookId = document.getElementById('deleteBookId').value;
+        
+        fetch(`/books/${bookId}/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            window.location.href = '/books';
+          } else {
+            alert('Ошибка: ' + data.message);
+          }
+        });
+      }
+
+      //- Вернуть книгу
+      function returnBook(bookId) {
+        if (confirm('Вернуть книгу в библиотеку?')) {
+          fetch(`/books/${bookId}/return`, {
+            method: 'POST'
+          })
+          .then(response => response.json())
+          .then(data => {
+            alert(data.message);
+            location.reload();
+          });
+        }
+      }
+
+      //- Обработка формы выдачи
+      document.getElementById('borrowForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const bookId = document.getElementById('borrowBookId').value;
+        const borrower = document.getElementById('borrowerName').value;
+        const dueDate = document.getElementById('dueDate').value;
+
+        fetch(`/books/${bookId}/borrow`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ borrower, dueDate })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            closeModal('borrowModal');
+            location.reload();
+          } else {
+            alert('Ошибка: ' + data.message);
+          }
+        });
+      });
+
+      //- Закрытие модальных окон
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+      }
+
+      //- Закрытие по клику вне модального окна
+      window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+          if (event.target === modal) {
+            modal.style.display = 'none';
+          }
+        }
+      }
+
+      //- Закрытие по кнопке X
+      document.querySelectorAll('.close').forEach(closeBtn => {
+        closeBtn.onclick = function() {
+          this.closest('.modal').style.display = 'none';
+        };
+      });

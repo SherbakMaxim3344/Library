@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  library-app:
+    build: .
+    ports:
+      - "3002:3002"
+    volumes:
+      - library_data:/app/data  # Используем именованный volume вместо bind mount
+    restart: unless-stopped
+
+volumes:
+  library_data:  # Создаем именованный volume для данных

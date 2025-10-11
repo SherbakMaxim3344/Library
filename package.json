@@ -1,14 +1,28 @@
+
 {
   "name": "shcherbak_maxim_lb2",
   "type": "module",
   "version": "1.0.0",
-  "description": "Лабораторная работа - Библиотека книг",
+  "description": "Лабораторная работа по WEB - Библиотека книг",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "express": "^4.21.2",
-    "pug": "^3.0.3"
-  }
+    "express-fileupload": "^1.5.2",
+    "pug": "^3.0.2"
+  },
+  "keywords": [
+    "express", 
+    "pug",
+    "library",
+    "books",
+    "docker"
+  ],
+  "author": "Shcherbak Maxim",
+  "license": "MIT"
 }

@@ -1,5 +1,14 @@
-function showAlert() {
-  alert('Привет от Pug и Express!');
+// Базовые функции для работы с сайтом
+console.log('Библиотека книг загружена');
+
+// Простые утилиты
+function formatDate(dateString) {
+  if (!dateString) return 'Не указано';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ru-RU');
 }
 
-console.log('JavaScript загружен и работает!');
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Страница загружена');
+});

@@ -20,3 +20,54 @@ app.listen(3001, () => {
 
 lsof -i :3001
 pkill -f node
+
+
+Запуск проекта:
+npm install
+npm start
+
+вот jsonдля простого запуска проекта
+{
+  "name": "shcherbak_maxim_lb2",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Лабораторная работа по WEB - Библиотека книг",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "express-fileupload": "^1.5.2",
+    "pug": "^3.0.2"
+  },
+  "keywords": [
+    "express",
+    "pug",
+    "library",
+    "books"
+  ],
+  "author": "Shcherbak Maxim",
+  "license": "MIT"
+}
+
+
+
+Запуск приложения:
+bash
+# Удаляем node_modules если они есть
+rm -rf node_modules
+
+# Запускаем через Docker Compose
+docker-compose up --build
+
+# Или через npm скрипт
+npm run docker:up
+Остановка приложения:
+bash
+docker-compose down
+
+
+удалить  docker system prune -f

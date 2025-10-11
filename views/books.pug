@@ -79,7 +79,7 @@ html
       .books-section
         h3
           i.fas.fa-books
-          |  #{message}
+          |  Список книг
         
         .books-container
           each book in books
@@ -99,15 +99,17 @@ html
                       |  Выдана: #{book.borrower}
                   
                   .action-buttons
-                    button.btn.btn-info(onclick=`showBookDetails('${book.id}')`)
+                    button.btn.btn-info(onclick=`showBookDetails(${JSON.stringify(book).replace(/'/g, "\\'")})` title="Подробнее")
                       i.fas.fa-info
                     if book.isAvailable
-                      button.btn.btn-success(onclick=`showBorrowForm('${book.id}')`)
+                      button.btn.btn-success(onclick=`showBorrowDialog('${book.id}', '${book.title}')` title="Выдать книгу")
                         i.fas.fa-hand-holding
                     else
-                      button.btn.btn-warning(onclick=`returnBook('${book.id}')`)
+                      button.btn.btn-info(onclick=`showReaderInfo(${JSON.stringify(book).replace(/'/g, "\\'")})` title="Информация о читателе")
+                        i.fas.fa-user
+                      button.btn.btn-warning(onclick=`returnBook('${book.id}')` title="Вернуть книгу")
                         i.fas.fa-undo
-                    button.btn.btn-danger(onclick=`confirmDelete('${book.id}', '${book.title}')`)
+                    button.btn.btn-danger(onclick=`confirmDelete('${book.id}', '${book.title}')` title="Удалить книгу")
                       i.fas.fa-trash
 
               .book-details
@@ -125,171 +127,364 @@ html
                   p
                     i.fas.fa-clock
                     |  Вернуть до: #{book.dueDate}
-                    //- Убрали вызов функции isExpiring из Pug
                     span.urgent(data-due-date=book.dueDate) (Срочно!)
 
-      //- Модальные окна
-      #borrowModal.modal
-        .modal-content
-          span.close &times;
-          h3
-            i.fas.fa-hand-holding
-            |  Выдать книгу
-          form#borrowForm
-            input(type="hidden", id="borrowBookId")
-            .form-group
-              label
-                i.fas.fa-user
-                |  Читатель:
-              input(type="text", id="borrowerName", required, placeholder="Введите имя читателя")
-            .form-group
-              label
-                i.fas.fa-calendar
-                |  Дата возврата:
-              input(type="date", id="dueDate", required)
-            button.btn.btn-success(type="submit")
-              i.fas.fa-check
-              |  Выдать книгу
+//- Модальное окно для информации о книге
+dialog#bookInfoDialog.modal
+  .modal-content
+    .modal-header
+      h3.modal-title
+        i.fas.fa-info-circle
+        |  Информация о книге
+      button.close(type="button" onclick="closeBookInfoDialog()") &times;
+    
+    .book-info-content#bookInfoContent
+      //- Содержимое заполняется через JavaScript
 
-      #deleteModal.modal
-        .modal-content
-          span.close &times;
-          h3
-            i.fas.fa-exclamation-triangle
-            |  Подтверждение удаления
-          p Вы уверены, что хотите удалить книгу "<span id="deleteBookTitle"></span>"?
-          input(type="hidden", id="deleteBookId")
-          .modal-actions
-            button.btn.btn-secondary(onclick="closeModal('deleteModal')")
-              i.fas.fa-times
-              |  Отмена
-            button.btn.btn-danger(onclick="deleteBook()")
-              i.fas.fa-trash
-              |  Удалить
+    .modal-actions
+      button.btn.btn-primary(type="button" onclick="closeBookInfoDialog()")
+        i.fas.fa-check
+        |  Закрыть
 
-    script.
-      //- Функция для проверки срочности возврата (теперь на клиенте)
-      function isExpiring(dueDate) {
-        if (!dueDate) return false;
-        const now = new Date();
-        const due = new Date(dueDate);
-        const diffTime = due - now;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays <= 7 && diffDays > 0;
+//- Модальное окно для выдачи книги
+dialog#borrowDialog.modal
+  .modal-content
+    .modal-header
+      h3.modal-title
+        i.fas.fa-hand-holding
+        |  Выдать книгу читателю
+      button.close(type="button" onclick="closeBorrowDialog()") &times;
+    
+    form#borrowForm
+      input(type="hidden", id="borrowBookId")
+      
+      .form-group
+        label(for="readerName")
+          i.fas.fa-user
+          |  ФИО читателя:
+        input(type="text", id="readerName", name="readerName", required, placeholder="Введите полное имя читателя")
+      
+      .form-group
+        label(for="readerEmail")
+          i.fas.fa-envelope
+          |  Email читателя:
+        input(type="email", id="readerEmail", name="readerEmail", placeholder="email@example.com")
+      
+      .form-group
+        label(for="readerPhone")
+          i.fas.fa-phone
+          |  Телефон читателя:
+        input(type="tel", id="readerPhone", name="readerPhone", placeholder="+7 (999) 999-99-99")
+      
+      .form-group
+        label(for="dueDate")
+          i.fas.fa-calendar
+          |  Дата возврата:
+        input(type="date", id="dueDate", name="dueDate", required)
+      
+      .modal-actions
+        button.btn.btn-secondary(type="button" onclick="closeBorrowDialog()")
+          i.fas.fa-times
+          |  Отмена
+        button.btn.btn-success(type="submit")
+          i.fas.fa-check
+          |  Выдать книгу
+
+//- Модальное окно для просмотра информации о читателе
+dialog#readerInfoDialog.modal
+  .modal-content
+    .modal-header
+      h3.modal-title
+        i.fas.fa-user-circle
+        |  Информация о читателе
+      button.close(type="button" onclick="closeReaderInfoDialog()") &times;
+    
+    .reader-info
+      .info-item
+        strong
+          i.fas.fa-book
+          |  Книга:
+        span#infoBookTitle
+      .info-item
+        strong
+          i.fas.fa-user
+          |  Читатель:
+        span#infoReaderName
+      .info-item
+        strong
+          i.fas.fa-envelope
+          |  Email:
+        span#infoReaderEmail
+      .info-item
+        strong
+          i.fas.fa-phone
+          |  Телефон:
+        span#infoReaderPhone
+      .info-item
+        strong
+          i.fas.fa-calendar-check
+          |  Дата выдачи:
+        span#infoBorrowDate
+      .info-item
+        strong
+          i.fas.fa-calendar-times
+          |  Вернуть до:
+        span#infoDueDate
+    
+    .modal-actions
+      button.btn.btn-primary(type="button" onclick="closeReaderInfoDialog()")
+        i.fas.fa-check
+        |  Закрыть
+
+script.
+  //- Переменная для хранения данных текущей книги
+  let currentBookData = null;
+  
+  //- Показать информацию о книге
+  function showBookDetails(book) {
+    const dialog = document.getElementById('bookInfoDialog');
+    const content = document.getElementById('bookInfoContent');
+    
+    const bookInfoHTML = `
+      <div class="book-info">
+        <div class="info-section">
+          <h4>${book.title}</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <strong><i class="fas fa-user-edit"></i> Автор:</strong>
+              <span>${book.author}</span>
+            </div>
+            <div class="info-item">
+              <strong><i class="fas fa-calendar"></i> Год издания:</strong>
+              <span>${book.year}</span>
+            </div>
+            <div class="info-item">
+              <strong><i class="fas fa-tag"></i> Жанр:</strong>
+              <span>${book.genre}</span>
+            </div>
+            <div class="info-item">
+              <strong><i class="fas fa-calendar-plus"></i> Добавлена:</strong>
+              <span>${book.addedDate || 'Не указано'}</span>
+            </div>
+            <div class="info-item">
+              <strong><i class="fas fa-check-circle"></i> Статус:</strong>
+              <span>${book.isAvailable ? 'Доступна' : 'Выдана: ' + (book.borrower || 'Не указано')}</span>
+            </div>
+            ${!book.isAvailable && book.dueDate ? `
+            <div class="info-item">
+              <strong><i class="fas fa-clock"></i> Вернуть до:</strong>
+              <span>${new Date(book.dueDate).toLocaleDateString('ru-RU')}</span>
+              ${isExpiring(book.dueDate) ? '<span class="urgent">(Срочно!)</span>' : ''}
+            </div>
+            ` : ''}
+            ${!book.isAvailable && book.readerEmail ? `
+            <div class="info-item">
+              <strong><i class="fas fa-envelope"></i> Email читателя:</strong>
+              <span>${book.readerEmail}</span>
+            </div>
+            ` : ''}
+            ${!book.isAvailable && book.readerPhone ? `
+            <div class="info-item">
+              <strong><i class="fas fa-phone"></i> Телефон читателя:</strong>
+              <span>${book.readerPhone}</span>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    content.innerHTML = bookInfoHTML;
+    dialog.showModal();
+  }
+  
+  //- Закрыть диалог информации о книге
+  function closeBookInfoDialog() {
+    const dialog = document.getElementById('bookInfoDialog');
+    dialog.close();
+  }
+  
+  //- Показать диалог выдачи книги
+  function showBorrowDialog(bookId, bookTitle) {
+    const dialog = document.getElementById('borrowDialog');
+    document.getElementById('borrowBookId').value = bookId;
+    
+    // Очищаем форму
+    document.getElementById('readerName').value = '';
+    document.getElementById('readerEmail').value = '';
+    document.getElementById('readerPhone').value = '';
+    document.getElementById('dueDate').value = '';
+    
+    // Устанавливаем минимальную дату - сегодня
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('dueDate').min = today;
+    
+    // Предустанавливаем дату возврата (например, через 14 дней)
+    const twoWeeksLater = new Date();
+    twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
+    document.getElementById('dueDate').value = twoWeeksLater.toISOString().split('T')[0];
+    
+    // Показываем диалог
+    dialog.showModal();
+  }
+  
+  //- Закрыть диалог выдачи книги
+  function closeBorrowDialog() {
+    const dialog = document.getElementById('borrowDialog');
+    dialog.close();
+  }
+  
+  //- Показать информацию о читателе
+  function showReaderInfo(book) {
+    currentBookData = book;
+    const dialog = document.getElementById('readerInfoDialog');
+    
+    // Заполняем информацию
+    document.getElementById('infoBookTitle').textContent = book.title;
+    document.getElementById('infoReaderName').textContent = book.borrower || 'Не указано';
+    document.getElementById('infoReaderEmail').textContent = book.readerEmail || 'Не указано';
+    document.getElementById('infoReaderPhone').textContent = book.readerPhone || 'Не указано';
+    document.getElementById('infoBorrowDate').textContent = book.borrowedDate ? new Date(book.borrowedDate).toLocaleDateString('ru-RU') : new Date().toLocaleDateString('ru-RU');
+    document.getElementById('infoDueDate').textContent = book.dueDate ? new Date(book.dueDate).toLocaleDateString('ru-RU') : 'Не указано';
+    
+    // Показываем диалог
+    dialog.showModal();
+  }
+  
+  //- Закрыть диалог информации о читателе
+  function closeReaderInfoDialog() {
+    const dialog = document.getElementById('readerInfoDialog');
+    dialog.close();
+  }
+  
+  //- Обработка формы выдачи книги
+  document.getElementById('borrowForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const bookId = document.getElementById('borrowBookId').value;
+    const readerName = document.getElementById('readerName').value.trim();
+    const readerEmail = document.getElementById('readerEmail').value.trim();
+    const readerPhone = document.getElementById('readerPhone').value.trim();
+    const dueDate = document.getElementById('dueDate').value;
+    
+    // Валидация
+    if (!readerName) {
+      alert('Пожалуйста, введите ФИО читателя');
+      document.getElementById('readerName').focus();
+      return;
+    }
+    
+    if (!dueDate) {
+      alert('Пожалуйста, выберите дату возврата');
+      document.getElementById('dueDate').focus();
+      return;
+    }
+    
+    // Проверяем, что дата возврата не в прошлом
+    const today = new Date().toISOString().split('T')[0];
+    if (dueDate < today) {
+      alert('Дата возврата не может быть в прошлом');
+      document.getElementById('dueDate').focus();
+      return;
+    }
+    
+    // Отправка данных на сервер
+    fetch(`/books/${bookId}/borrow`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        borrower: readerName,
+        readerEmail: readerEmail,
+        readerPhone: readerPhone,
+        dueDate: dueDate
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('✅ Книга успешно выдана читателю: ' + readerName);
+        closeBorrowDialog();
+        location.reload();
+      } else {
+        alert('❌ Ошибка: ' + data.message);
       }
-
-      //- Показываем/скрываем срочные метки после загрузки страницы
-      document.addEventListener('DOMContentLoaded', function() {
-        const urgentSpans = document.querySelectorAll('.urgent');
-        urgentSpans.forEach(span => {
-          const dueDate = span.getAttribute('data-due-date');
-          if (!isExpiring(dueDate)) {
-            span.style.display = 'none';
-          }
-        });
-      });
-
-      //- Применение фильтров
-      function applyFilters() {
-        const filter = document.getElementById('filterSelect').value;
-        const sort = document.getElementById('sortSelect').value;
-        window.location.href = `/books?filter=${filter}&sort=${sort}`;
+    })
+    .catch(error => {
+      alert('❌ Ошибка сети: ' + error.message);
+    });
+  });
+  
+  //- Закрытие диалогов по клику на фон
+  document.querySelectorAll('dialog').forEach(dialog => {
+    dialog.addEventListener('click', (e) => {
+      const dialogDimensions = dialog.getBoundingClientRect();
+      if (
+        e.clientX < dialogDimensions.left ||
+        e.clientX > dialogDimensions.right ||
+        e.clientY < dialogDimensions.top ||
+        e.clientY > dialogDimensions.bottom
+      ) {
+        dialog.close();
       }
-
-      //- Показать форму выдачи
-      function showBorrowForm(bookId) {
-        document.getElementById('borrowBookId').value = bookId;
-        document.getElementById('borrowModal').style.display = 'block';
-        //- Установим минимальную дату - сегодня
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('dueDate').min = today;
-      }
-
-      //- Подтверждение удаления
-      function confirmDelete(bookId, bookTitle) {
-        document.getElementById('deleteBookId').value = bookId;
-        document.getElementById('deleteBookTitle').textContent = bookTitle;
-        document.getElementById('deleteModal').style.display = 'block';
-      }
-
-      //- Удаление книги
-      function deleteBook() {
-        const bookId = document.getElementById('deleteBookId').value;
-        
-        fetch(`/books/${bookId}/delete`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert(data.message);
-            document.getElementById(`book-${bookId}`).remove();
-            closeModal('deleteModal');
-            //- Обновим статистику
-            location.reload();
-          } else {
-            alert('Ошибка: ' + data.message);
-          }
-        });
-      }
-
-      //- Вернуть книгу
-      function returnBook(bookId) {
-        if (confirm('Вернуть книгу в библиотеку?')) {
-          fetch(`/books/${bookId}/return`, {
-            method: 'POST'
-          })
-          .then(response => response.json())
-          .then(data => {
-            alert(data.message);
-            location.reload();
-          });
+    });
+  });
+  
+  //- Остальные функции
+  function confirmDelete(bookId, bookTitle) {
+    if (confirm(`🗑️ Вы уверены, что хотите удалить книгу "${bookTitle}"?`)) {
+      fetch(`/books/${bookId}/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('✅ ' + data.message);
+          document.getElementById(`book-${bookId}`)?.remove();
+          location.reload();
+        } else {
+          alert('❌ Ошибка: ' + data.message);
         }
-      }
-
-      //- Обработка формы выдачи
-      document.getElementById('borrowForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const bookId = document.getElementById('borrowBookId').value;
-        const borrower = document.getElementById('borrowerName').value;
-        const dueDate = document.getElementById('dueDate').value;
-
-        fetch(`/books/${bookId}/borrow`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ borrower, dueDate })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert(data.message);
-            closeModal('borrowModal');
-            location.reload();
-          } else {
-            alert('Ошибка: ' + data.message);
-          }
-        });
       });
-
-      //- Закрытие модальных окон
-      function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-      }
-
-      //- Закрытие по клику вне модального окна
-      window.onclick = function(event) {
-        const modals = document.getElementsByClassName('modal');
-        for (let modal of modals) {
-          if (event.target === modal) {
-            modal.style.display = 'none';
-          }
-        }
-      }
-
-      //- Закрытие по кнопке X
-      document.querySelectorAll('.close').forEach(closeBtn => {
-        closeBtn.onclick = function() {
-          this.closest('.modal').style.display = 'none';
-        };
+    }
+  }
+  
+  function returnBook(bookId) {
+    if (confirm('📚 Вернуть книгу в библиотеку?')) {
+      fetch(`/books/${bookId}/return`, {
+        method: 'POST'
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('✅ ' + data.message);
+        location.reload();
       });
+    }
+  }
+  
+  function applyFilters() {
+    const filter = document.getElementById('filterSelect').value;
+    const sort = document.getElementById('sortSelect').value;
+    window.location.href = `/books?filter=${filter}&sort=${sort}`;
+  }
+  
+  //- Функция для проверки срочности возврата (на клиенте)
+  function isExpiring(dueDate) {
+    if (!dueDate) return false;
+    const now = new Date();
+    const due = new Date(dueDate);
+    const diffTime = due - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 7 && diffDays > 0;
+  }
+
+  //- Функция для обновления срочных меток после загрузки страницы
+  document.addEventListener('DOMContentLoaded', function() {
+    const urgentSpans = document.querySelectorAll('.urgent');
+    urgentSpans.forEach(span => {
+      const dueDate = span.getAttribute('data-due-date');
+      if (!isExpiring(dueDate)) {
+        span.style.display = 'none';
+      }
+    });
+  });

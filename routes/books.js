@@ -53,18 +53,7 @@ router.get('/', (req, res) => {
 
 // Страница конкретной книги
 router.get('/:id', (req, res) => {
-  const book = libraryStorage.getBookById(req.params.id);
-  if (book) {
-    res.render('book-detail', {
-      title: book.title,
-      book: book
-    });
-  } else {
-    res.status(404).render('error', {
-      title: 'Книга не найдена',
-      message: `Книга с ID ${req.params.id} не существует`
-    });
-  }
+  res.redirect('/books');
 });
 
 // Форма добавления книги

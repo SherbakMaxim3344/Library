@@ -157,10 +157,12 @@ const libraryStorage = {
   },
 
   // Выдать книгу
-  borrowBook(id, borrower, dueDate) {
+  borrowBook(id, borrower, dueDate, readerEmail = '', readerPhone = '') {
     return this.updateBook(id, {
       isAvailable: false,
       borrower,
+      readerEmail,
+      readerPhone,
       dueDate,
       borrowedDate: new Date().toISOString().split('T')[0]
     });

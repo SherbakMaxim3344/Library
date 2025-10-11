@@ -4,6 +4,27 @@ html
     title= title
     link(rel="stylesheet", href="/public/css/style.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css")
+    style.
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+      .loading i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      .no-books {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+        grid-column: 1 / -1;
+      }
+      .no-books i {
+        font-size: 3rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+      }
   body
     header
       h1
@@ -30,22 +51,22 @@ html
           .stat-item
             i.fas.fa-book.total
             .stat-info
-              .stat-number #{statistics.totalBooks}
+              .stat-number#totalBooks #{statistics.totalBooks}
               .stat-label Всего книг
           .stat-item
             i.fas.fa-check-circle.available
             .stat-info
-              .stat-number #{statistics.availableBooks}
+              .stat-number#availableBooks #{statistics.availableBooks}
               .stat-label Доступно
           .stat-item
             i.fas.fa-user-check.borrowed
             .stat-info
-              .stat-number #{statistics.borrowedBooks}
+              .stat-number#borrowedBooks #{statistics.borrowedBooks}
               .stat-label Выдано
           .stat-item
             i.fas.fa-clock.expiring
             .stat-info
-              .stat-number #{statistics.expiringBooks}
+              .stat-number#expiringBooks #{statistics.expiringBooks}
               .stat-label Скоро срок
 
       //- Фильтры и сортировка
@@ -59,7 +80,7 @@ html
             label
               i.fas.fa-filter
               |  Фильтр:
-            select#filterSelect(onchange="applyFilters()")
+            select#filterSelect
               option(value="all" selected=filter === 'all') Все книги
               option(value="available" selected=filter === 'available') Доступные
               option(value="borrowed" selected=filter === 'borrowed') Выданные
@@ -69,7 +90,7 @@ html
             label
               i.fas.fa-sort
               |  Сортировка:
-            select#sortSelect(onchange="applyFilters()")
+            select#sortSelect
               option(value="title" selected=sort === 'title') По названию
               option(value="author" selected=sort === 'author') По автору
               option(value="year" selected=sort === 'year') По году
@@ -77,11 +98,11 @@ html
 
       //- Список книг
       .books-section
-        h3
+        h3#booksTitle
           i.fas.fa-books
-          |  Список книг
+          |  #{message}
         
-        .books-container
+        .books-container#booksContainer
           each book in books
             .book-card(id=`book-${book.id}`)
               .book-header
@@ -129,7 +150,7 @@ html
                     |  Вернуть до: #{book.dueDate}
                     span.urgent(data-due-date=book.dueDate) (Срочно!)
 
-//- Модальное окно для информации о книге
+//- Модальные окна (без изменений)
 dialog#bookInfoDialog.modal
   .modal-content
     .modal-header
@@ -146,7 +167,6 @@ dialog#bookInfoDialog.modal
         i.fas.fa-check
         |  Закрыть
 
-//- Модальное окно для выдачи книги
 dialog#borrowDialog.modal
   .modal-content
     .modal-header
@@ -190,7 +210,6 @@ dialog#borrowDialog.modal
           i.fas.fa-check
           |  Выдать книгу
 
-//- Модальное окно для просмотра информации о читателе
 dialog#readerInfoDialog.modal
   .modal-content
     .modal-header
@@ -239,6 +258,166 @@ dialog#readerInfoDialog.modal
 script.
   //- Переменная для хранения данных текущей книги
   let currentBookData = null;
+  
+  //- Инициализация при загрузке страницы
+  document.addEventListener('DOMContentLoaded', function() {
+    // Добавляем обработчики изменений для фильтров
+    document.getElementById('filterSelect').addEventListener('change', applyFilters);
+    document.getElementById('sortSelect').addEventListener('change', applyFilters);
+    
+    // Обновляем срочные метки
+    updateUrgentLabels();
+  });
+  
+  //- Функция для применения фильтров через AJAX
+  function applyFilters() {
+    const filter = document.getElementById('filterSelect').value;
+    const sort = document.getElementById('sortSelect').value;
+    
+    // Показываем индикатор загрузки
+    showLoading();
+    
+    // AJAX запрос для фильтрации
+    fetch(`/books/api/filter?filter=${filter}&sort=${sort}`)
+      .then(response => response.json())
+      .then(data => {
+        // Обновляем статистику
+        updateStatistics(data.statistics);
+        // Обновляем список книг
+        updateBooksContainer(data.books);
+        // Обновляем заголовок
+        updateBooksTitle(data.message);
+      })
+      .catch(error => {
+        console.error('Ошибка фильтрации:', error);
+        alert('Ошибка при загрузке книг');
+        // При ошибке - перезагружаем страницу старым способом
+        window.location.href = `/books?filter=${filter}&sort=${sort}`;
+      })
+      .finally(() => {
+        hideLoading();
+      });
+  }
+  
+  //- Функция для обновления статистики
+  function updateStatistics(statistics) {
+    document.getElementById('totalBooks').textContent = statistics.totalBooks;
+    document.getElementById('availableBooks').textContent = statistics.availableBooks;
+    document.getElementById('borrowedBooks').textContent = statistics.borrowedBooks;
+    document.getElementById('expiringBooks').textContent = statistics.expiringBooks;
+  }
+  
+  //- Функция для обновления заголовка
+  function updateBooksTitle(message) {
+    document.getElementById('booksTitle').innerHTML = `<i class="fas fa-books"></i> ${message}`;
+  }
+  
+  //- Функция для обновления контейнера с книгами
+  function updateBooksContainer(books) {
+    const container = document.getElementById('booksContainer');
+    
+    if (books.length === 0) {
+      container.innerHTML = `
+        <div class="no-books">
+          <i class="fas fa-book-open"></i>
+          <p>Книги не найдены</p>
+        </div>
+      `;
+      return;
+    }
+    
+    const booksHTML = books.map(book => `
+      <div class="book-card" id="book-${book.id}">
+        <div class="book-header">
+          <h4>
+            <i class="fas fa-book"></i> ${book.title}
+          </h4>
+          <div class="book-actions">
+            ${book.isAvailable ? 
+              `<span class="status available">
+                <i class="fas fa-check-circle"></i> Доступна
+              </span>` : 
+              `<span class="status borrowed">
+                <i class="fas fa-user-clock"></i> Выдана: ${book.borrower || 'Не указано'}
+              </span>`
+            }
+            
+            <div class="action-buttons">
+              <button class="btn btn-info" onclick="showBookDetails(${JSON.stringify(book).replace(/'/g, "\\'")})" title="Подробнее">
+                <i class="fas fa-info"></i>
+              </button>
+              ${book.isAvailable ? 
+                `<button class="btn btn-success" onclick="showBorrowDialog('${book.id}', '${book.title}')" title="Выдать книгу">
+                  <i class="fas fa-hand-holding"></i>
+                </button>` : 
+                `<button class="btn btn-info" onclick="showReaderInfo(${JSON.stringify(book).replace(/'/g, "\\'")})" title="Информация о читателе">
+                  <i class="fas fa-user"></i>
+                </button>
+                <button class="btn btn-warning" onclick="returnBook('${book.id}')" title="Вернуть книгу">
+                  <i class="fas fa-undo"></i>
+                </button>`
+              }
+              <button class="btn btn-danger" onclick="confirmDelete('${book.id}', '${book.title}')" title="Удалить книгу">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-details">
+          <p>
+            <i class="fas fa-user-edit"></i> Автор: ${book.author}
+          </p>
+          <p>
+            <i class="fas fa-calendar"></i> Год: ${book.year}
+          </p>
+          <p>
+            <i class="fas fa-tag"></i> Жанр: ${book.genre}
+          </p>
+          ${!book.isAvailable && book.dueDate ? `
+          <p>
+            <i class="fas fa-clock"></i> Вернуть до: ${book.dueDate}
+            <span class="urgent" data-due-date="${book.dueDate}">(Срочно!)</span>
+          </p>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+    
+    container.innerHTML = booksHTML;
+    
+    // Обновляем срочные метки после рендеринга
+    updateUrgentLabels();
+  }
+  
+  //- Функция для показа индикатора загрузки
+  function showLoading() {
+    const container = document.getElementById('booksContainer');
+    container.innerHTML = `
+      <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Загрузка книг...</p>
+      </div>
+    `;
+  }
+  
+  //- Функция для скрытия индикатора загрузки
+  function hideLoading() {
+    // Автоматически скрывается при обновлении контента
+  }
+  
+  //- Функция для обновления срочных меток
+  function updateUrgentLabels() {
+    const urgentSpans = document.querySelectorAll('.urgent');
+    urgentSpans.forEach(span => {
+      const dueDate = span.getAttribute('data-due-date');
+      if (!isExpiring(dueDate)) {
+        span.style.display = 'none';
+      }
+    });
+  }
+
+  //- ОСТАЛЬНЫЕ ФУНКЦИИ БЕЗ ИЗМЕНЕНИЙ (оставляем как было)
   
   //- Показать информацию о книге
   function showBookDetails(book) {
@@ -404,7 +583,8 @@ script.
       if (data.success) {
         alert('✅ Книга успешно выдана читателю: ' + readerName);
         closeBorrowDialog();
-        location.reload();
+        // Обновляем фильтры через AJAX вместо перезагрузки
+        applyFilters();
       } else {
         alert('❌ Ошибка: ' + data.message);
       }
@@ -440,8 +620,8 @@ script.
       .then(data => {
         if (data.success) {
           alert('✅ ' + data.message);
-          document.getElementById(`book-${bookId}`)?.remove();
-          location.reload();
+          // Обновляем фильтры через AJAX вместо перезагрузки
+          applyFilters();
         } else {
           alert('❌ Ошибка: ' + data.message);
         }
@@ -457,15 +637,10 @@ script.
       .then(response => response.json())
       .then(data => {
         alert('✅ ' + data.message);
-        location.reload();
+        // Обновляем фильтры через AJAX вместо перезагрузки
+        applyFilters();
       });
     }
-  }
-  
-  function applyFilters() {
-    const filter = document.getElementById('filterSelect').value;
-    const sort = document.getElementById('sortSelect').value;
-    window.location.href = `/books?filter=${filter}&sort=${sort}`;
   }
   
   //- Функция для проверки срочности возврата (на клиенте)

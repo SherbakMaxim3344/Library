@@ -51,6 +51,52 @@ router.get('/', (req, res) => {
   });
 });
 
+// AJAX endpoint для фильтрации книг
+router.get('/api/filter', (req, res) => {
+  let books = libraryStorage.getAllBooks();
+  const filter = req.query.filter || 'all';
+  const sort = req.query.sort || 'title';
+
+  // Применяем фильтрацию
+  switch (filter) {
+    case 'available':
+      books = libraryStorage.getAvailableBooks();
+      break;
+    case 'borrowed':
+      books = libraryStorage.getBorrowedBooks();
+      break;
+    case 'expiring':
+      books = libraryStorage.getExpiringBooks();
+      break;
+    default:
+      books = libraryStorage.getAllBooks();
+  }
+
+  // Применяем сортировку
+  books.sort((a, b) => {
+    switch (sort) {
+      case 'title':
+        return a.title.localeCompare(b.title);
+      case 'author':
+        return a.author.localeCompare(b.author);
+      case 'year':
+        return b.year - a.year;
+      case 'dueDate':
+        return new Date(a.dueDate || '9999-12-31') - new Date(b.dueDate || '9999-12-31');
+      default:
+        return 0;
+    }
+  });
+
+  const statistics = libraryStorage.getStatistics();
+
+  res.json({
+    books: books,
+    statistics: statistics,
+    message: `Найдено ${books.length} книг`
+  });
+});
+
 // Страница конкретной книги
 router.get('/:id', (req, res) => {
   res.redirect('/books');
@@ -104,16 +150,22 @@ router.post('/:id/delete', (req, res) => {
 
 // Выдать книгу
 router.post('/:id/borrow', (req, res) => {
-  const { borrower, dueDate } = req.body;
+  const { borrower, readerEmail, readerPhone, dueDate } = req.body;
   
   if (!borrower || !dueDate) {
     return res.status(400).json({ 
       success: false, 
-      message: 'Заполните все поля' 
+      message: 'Заполните обязательные поля' 
     });
   }
   
-  const success = libraryStorage.borrowBook(req.params.id, borrower, dueDate);
+  const success = libraryStorage.borrowBook(
+    req.params.id, 
+    borrower, 
+    dueDate,
+    readerEmail,
+    readerPhone
+  );
   
   if (success) {
     res.json({ success: true, message: 'Книга успешно выдана' });

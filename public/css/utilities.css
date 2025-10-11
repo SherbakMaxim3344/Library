@@ -117,3 +117,91 @@
     justify-content: center;
   }
 }
+
+
+
+
+
+
+/* Улучшенная адаптивность */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .section {
+    padding: 1.5rem 0;
+  }
+  
+  /* Улучшаем отображение статистики на мобильных */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+  
+  .stat-item {
+    padding: 0.8rem;
+  }
+  
+  .stat-number {
+    font-size: 1.3rem;
+  }
+  
+  /* Улучшаем отображение карточек книг на мобильных */
+  .books-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .book-card {
+    padding: 1.2rem;
+  }
+  
+  .book-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+  
+  .action-buttons {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .filter-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .filter-group,
+  .sort-group {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  
+  .filter-group select,
+  .sort-group select {
+    min-width: 100%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .library-stats {
+    padding: 1.5rem;
+  }
+  
+  .filters-section {
+    padding: 1.2rem;
+  }
+  
+  .book-card {
+    padding: 1rem;
+  }
+  
+  .modal-content {
+    margin: 5% auto;
+    padding: 1.2rem;
+  }
+}

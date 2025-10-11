@@ -36,10 +36,13 @@
       "author": "God",
       "year": 1000,
       "genre": "История",
-      "isAvailable": true,
-      "borrower": null,
-      "dueDate": null,
-      "addedDate": "2025-10-11"
+      "isAvailable": false,
+      "borrower": "Ivan Colivan Hazarov\\vich",
+      "dueDate": "2025-10-12",
+      "addedDate": "2025-10-11",
+      "readerEmail": "ivan@yandex.com",
+      "readerPhone": "+1241245125",
+      "borrowedDate": "2025-10-11"
     },
     {
       "id": "1760208752968",
@@ -54,6 +57,17 @@
       "readerEmail": "denisloshok@mail.ru",
       "readerPhone": "+6666666666",
       "borrowedDate": "2025-10-11"
+    },
+    {
+      "id": "1760208752969",
+      "title": "Какого быть Богом?",
+      "author": "Неизвестен",
+      "year": "Неизвестен",
+      "genre": "Неизвестен",
+      "isAvailable": true,
+      "borrower": null,
+      "dueDate": null,
+      "addedDate": "2025-10-11"
     }
   ]
 }

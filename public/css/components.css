@@ -103,3 +103,13 @@
   background: #f8d7da;
   color: #721c24;
 }
+
+.btn-warning {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background: #e0a800;
+  color: #212529;
+}

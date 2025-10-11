@@ -148,11 +148,16 @@ router.post('/:id/delete', (req, res) => {
   }
 });
 
-// Выдать книгу
+// Выдать книгу - С ЛОГИРОВАНИЕМ
 router.post('/:id/borrow', (req, res) => {
   const { borrower, readerEmail, readerPhone, dueDate } = req.body;
   
+  console.log('=== 📚 ВЫДАЧА КНИГИ ===');
+  console.log('ID книги:', req.params.id);
+  console.log('Данные читателя:', { borrower, readerEmail, readerPhone, dueDate });
+  
   if (!borrower || !dueDate) {
+    console.log('❌ Не заполнены обязательные поля');
     return res.status(400).json({ 
       success: false, 
       message: 'Заполните обязательные поля' 
@@ -166,6 +171,8 @@ router.post('/:id/borrow', (req, res) => {
     readerEmail,
     readerPhone
   );
+  
+  console.log('📝 Результат выдачи на сервере:', success);
   
   if (success) {
     res.json({ success: true, message: 'Книга успешно выдана' });
@@ -187,6 +194,34 @@ router.post('/:id/return', (req, res) => {
     res.status(400).json({ 
       success: false, 
       message: 'Не удалось вернуть книгу' 
+    });
+  }
+});
+
+// Обновление книги
+router.post('/:id/update', (req, res) => {
+  const { title, author, year, genre } = req.body;
+  
+  if (!title || !author || !year || !genre) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Все поля обязательны для заполнения' 
+    });
+  }
+  
+  const success = libraryStorage.updateBook(req.params.id, {
+    title,
+    author,
+    year: parseInt(year),
+    genre
+  });
+  
+  if (success) {
+    res.json({ success: true, message: 'Книга успешно обновлена' });
+  } else {
+    res.status(404).json({ 
+      success: false, 
+      message: 'Книга не найдена' 
     });
   }
 });

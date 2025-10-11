@@ -6,7 +6,7 @@ services:
     ports:
       - "3002:3002"
     volumes:
-      - library_data:/app/data  # Используем именованный volume вместо bind mount
+      - ./data:/app/data # Используем именованный volume вместо bind mount
     restart: unless-stopped
 
 volumes:

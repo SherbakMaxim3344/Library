@@ -22,43 +22,9 @@ const libraryStorage = {
         const data = fs.readFileSync(DATA_FILE, 'utf8');
         return JSON.parse(data);
       }
-      // Начальные данные
+      // Если файла нет, создаем пустую структуру
       const initialData = {
-        books: [
-          {
-            id: '1',
-            title: 'JavaScript для начинающих',
-            author: 'Иван Иванов',
-            year: 2022,
-            genre: 'Программирование',
-            isAvailable: true,
-            borrower: null,
-            dueDate: null,
-            addedDate: '2024-01-15'
-          },
-          {
-            id: '2',
-            title: 'Node.js в действии',
-            author: 'Петр Петров',
-            year: 2021,
-            genre: 'Программирование',
-            isAvailable: false,
-            borrower: 'Мария Сидорова',
-            dueDate: '2024-12-15',
-            addedDate: '2024-01-10'
-          },
-          {
-            id: '3',
-            title: 'Война и мир',
-            author: 'Лев Толстой',
-            year: 1869,
-            genre: 'Классика',
-            isAvailable: true,
-            borrower: null,
-            dueDate: null,
-            addedDate: '2024-01-05'
-          }
-        ]
+        books: []
       };
       this.saveLibraryData(initialData);
       return initialData;
@@ -119,8 +85,16 @@ const libraryStorage = {
   // Добавить книгу
   addBook(bookData) {
     const data = this.getLibraryData();
+    
+    // Находим максимальный ID для последовательных ID
+    let maxId = 0;
+    data.books.forEach(book => {
+      const bookId = parseInt(book.id);
+      if (bookId > maxId) maxId = bookId;
+    });
+    
     const newBook = {
-      id: Date.now().toString(),
+      id: (maxId + 1).toString(), // Простые последовательные ID
       ...bookData,
       isAvailable: true,
       borrower: null,
@@ -132,16 +106,25 @@ const libraryStorage = {
     return this.saveLibraryData(data) ? newBook : null;
   },
 
-  // Обновить книгу
+  // Обновить книгу - ИСПРАВЛЕННАЯ ВЕРСИЯ
   updateBook(id, bookData) {
     const data = this.getLibraryData();
     const index = data.books.findIndex(book => book.id === id);
     
-    if (index !== -1) {
-      data.books[index] = { ...data.books[index], ...bookData };
-      return this.saveLibraryData(data) ? data.books[index] : null;
+    if (index === -1) {
+      console.log('❌ Книга с ID', id, 'не найдена');
+      return null;
     }
-    return null;
+    
+    // ОБНОВЛЯЕМ ВСЕ ПЕРЕДАННЫЕ ПОЛЯ
+    data.books[index] = {
+      ...data.books[index],
+      ...bookData
+    };
+    
+    const success = this.saveLibraryData(data);
+    console.log('✅ Книга обновлена:', data.books[index]);
+    return success ? data.books[index] : null;
   },
 
   // Удалить книгу
@@ -156,25 +139,49 @@ const libraryStorage = {
     return false;
   },
 
-  // Выдать книгу
+  // Выдать книгу - ИСПРАВЛЕННАЯ ВЕРСИЯ
   borrowBook(id, borrower, dueDate, readerEmail = '', readerPhone = '') {
-    return this.updateBook(id, {
+    console.log('📚 Выдача книги:', { id, borrower, dueDate, readerEmail, readerPhone });
+    
+    const book = this.getBookById(id);
+    if (!book) {
+      console.log('❌ Книга не найдена');
+      return false;
+    }
+    
+    const result = this.updateBook(id, {
       isAvailable: false,
-      borrower,
-      readerEmail,
-      readerPhone,
-      dueDate,
+      borrower: borrower,
+      readerEmail: readerEmail,
+      readerPhone: readerPhone,
+      dueDate: dueDate,
       borrowedDate: new Date().toISOString().split('T')[0]
     });
+    
+    console.log('📝 Результат выдачи:', result ? '✅ Успешно' : '❌ Ошибка');
+    return !!result;
   },
 
   // Вернуть книгу
   returnBook(id) {
-    return this.updateBook(id, {
+    console.log('🔄 Возврат книги:', id);
+    
+    const book = this.getBookById(id);
+    if (!book) {
+      console.log('❌ Книга не найдена');
+      return false;
+    }
+    
+    const result = this.updateBook(id, {
       isAvailable: true,
       borrower: null,
+      readerEmail: '',
+      readerPhone: '',
       dueDate: null
     });
+    
+    console.log('📝 Результат возврата:', result ? '✅ Успешно' : '❌ Ошибка');
+    return !!result;
   },
 
   // Статистика

@@ -115,7 +115,113 @@
 }
 
 
+/* Стили для страницы "О нас" */
+.about-content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
 
+.project-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.info-card {
+  background: rgba(30, 30, 60, 0.8); /* Темно-синий полупрозрачный */
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border-left: 6px solid;
+  border-image: linear-gradient(to bottom, #8b0000, #4b0082, #00008b) 1; /* Красно-фиолетово-синий */
+  backdrop-filter: blur(10px);
+  color: #e0e0e0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(139, 0, 0, 0.4);
+}
+
+.info-card h3 {
+  color: #d8bfd8; /* Светло-фиолетовый */
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.info-card ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.info-card li {
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #c0c0c0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.info-card li:last-child {
+  border-bottom: none;
+}
+
+.info-card li:before {
+  content: "•";
+  color: #b19cd9; /* Фиолетовый */
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #8b0000, #4b0082);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  margin: 1rem 0;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 4px 15px rgba(139, 0, 0, 0.3);
+}
+
+.github-link:hover {
+  background: linear-gradient(135deg, #a00000, #5a009c);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(139, 0, 0, 0.5);
+}
+
+.features {
+  margin-top: 1rem;
+  color: #b0b0b0;
+}
+
+.features i {
+  color: #b19cd9; /* Фиолетовый */
+  width: 20px;
+}
+
+.welcome-content,
+.page-content {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(30, 30, 60, 0.8); /* Темный фон вместо белого */
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  margin: 2rem 0;
+  color: #e0e0e0;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
 
 
 
@@ -149,4 +255,30 @@
     justify-content: center;
     padding: 14px 20px;
   }
+}
+
+
+/* Темная тема для форм на странице книг */
+body.books-page .form-container {
+  background: rgba(30, 30, 60, 0.9) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e0e0e0;
+}
+
+body.books-page .form-group label {
+  color: #e0e0e0 !important;
+}
+
+body.books-page .form-group input,
+body.books-page .form-group select {
+  background: rgba(50, 50, 80, 0.8) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white !important;
+}
+
+body.books-page .form-group input:focus,
+body.books-page .form-group select:focus {
+  border-color: #667eea;
+  background: rgba(60, 60, 100, 0.9) !important;
 }

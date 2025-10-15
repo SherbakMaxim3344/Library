@@ -26,45 +26,56 @@ html
         a(href="/books")
           i.fas.fa-book
           |  Книги
-    
-    main
-      h2
-        i.fas.fa-bell
-        |  #{message}
-      
-      - if (value === 1)
-        p.alert
-          i.fas.fa-star
-          |  Добро пожаловать в первый раз!
-      - else if (value > 1)
-        p.alert
-          i.fas.fa-redo
-          |  Вы здесь были уже #{value} раз(а)!
-
-      //- Демонстрация различных иконок
-      .icons-demo
-        h3
-          i.fas.fa-icons
-          |  Демонстрация иконок:
+        | 
         
-        .icon-grid
-          .icon-item
-            i.fas.fa-user
-            span Пользователь
-          .icon-item
-            i.fas.fa-envelope
-            span Почта
-          .icon-item
-            i.fas.fa-phone
-            span Телефон
-          .icon-item
-            i.fas.fa-cog
-            span Настройки
-          .icon-item
-            i.fas.fa-search
-            span Поиск
-          .icon-item
-            i.fas.fa-heart
-            span Избранное
+  main
+    if title === "Моя страница"
+        .welcom-content 
+          h2 Добро пожаловать в домашнюю библиотеку!
+          p Это веб-приложение для управления вашей коллекцией книг. 
+
+    else if title === 'О нас'
+      .about-content
+        h2 О проекте "Домашняя библиотека":
+        
+        .project-info
+          .info-card
+            h3
+              i.fas.fa-book
+              |  О проекте
+            p Это веб-приложение для управления домашней библиотекой, разработанное на Node.js, Express и Pug.
+            
+          .info-card
+            h3
+              i.fas.fa-code
+              |  Технологии
+            ul
+              li Node.js + Express.js
+              li Pug (шаблонизатор)
+              li Font Awesome иконки
+              li JSON база данных
+              
+          .info-card
+            h3
+              i.fas.fa-user
+              |  Разработчик
+            p 
+              strong Максим Щербак
+            
+          .info-card
+            h3
+              i.fab.fa-github
+              |  Исходный код
+            p Проект доступен на GitHub:
+            a.github-link(href="https://github.com/SherbakMaxim3344/Library", target="_blank")
+              i.fab.fa-github
+              |  ❤️
+            p.features
+              i.fas.fa-star
+              |  Полный исходный код
+    else if title === 'Вторая страница'
+      .page-content
+        h2 Вторая страница
+        p МБ когданибудь чтото появится
 
     script(src="/public/js/script.js")

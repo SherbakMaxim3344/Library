@@ -1,0 +1,260 @@
+/* ТЕМНАЯ ТЕМАТИКА ДЛЯ СТРАНИЦЫ ДОБАВЛЕНИЯ КНИГИ */
+
+/* ФОН САУРОНА ТОЛЬКО ДЛЯ СТРАНИЦЫ ДОБАВЛЕНИЯ КНИГИ */
+body.add-book-page {
+  background-image: url('/public/images/fon.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Затемнение фона для лучшей читаемости */
+body.add-book-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: -1;
+}
+
+/* Центрирование основного контента */
+body.add-book-page main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: 2rem;
+}
+
+/* Стили для хедера в темной тематике */
+body.add-book-page header {
+  background: linear-gradient(135deg, 
+    rgba(4, 25, 45, 0.95) 0%, 
+    rgba(1, 0, 39, 0.95) 10%, 
+    rgba(27, 1, 1, 0.9) 14%, 
+    rgba(58, 2, 2, 0.9) 33%, 
+    rgba(55, 6, 6, 0.85) 50%, 
+    rgba(76, 2, 2, 0.8) 75%, 
+    rgba(43, 0, 0, 0.75) 100%) !important;
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 10;
+}
+
+/* Заголовок в хедере */
+body.add-book-page header h1 {
+  color: #ff6b6b;
+  text-shadow: 0 2px 8px rgba(255, 0, 0, 0.5);
+  font-size: 2.2rem;
+}
+
+body.add-book-page header h1 i {
+  color: #ff4757;
+  text-shadow: 0 0 10px rgba(255, 71, 87, 0.7);
+}
+
+/* Навигация в темном стиле */
+body.add-book-page nav a {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  color: #ffa8a8;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+body.add-book-page nav a:hover {
+  background: rgba(255, 0, 0, 0.2);
+  color: white;
+  border-color: #ff4757;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+}
+
+body.add-book-page nav a i {
+  color: #ff6b6b;
+}
+
+/* Темная форма */
+body.add-book-page .form-container {
+  background: rgba(30, 30, 30, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 15px;
+  padding: 2.5rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  margin: 0;
+  position: relative;
+  z-index: 5;
+}
+
+/* Заголовки в форме */
+body.add-book-page .form-container h1,
+body.add-book-page .form-container h2,
+body.add-book-page .form-container h3 {
+  color: #ff6b6b;
+  text-align: center;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Группы форм */
+body.add-book-page .form-group {
+  margin-bottom: 1.5rem;
+}
+
+body.add-book-page .form-group label {
+  color: #ffa8a8;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  display: block;
+}
+
+body.add-book-page .form-group label i {
+  color: #ff4757;
+  width: 20px;
+  text-align: center;
+}
+
+/* Поля ввода в темном стиле */
+body.add-book-page .form-group input,
+body.add-book-page .form-group select {
+  background: rgba(50, 50, 50, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-size: 1rem;
+  color: white;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+body.add-book-page .form-group input::placeholder {
+  color: #aaa;
+}
+
+body.add-book-page .form-group select {
+  color: white;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23ff6b6b' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+}
+
+body.add-book-page .form-group select option {
+  background: #333;
+  color: white;
+  padding: 10px;
+}
+
+body.add-book-page .form-group input:focus,
+body.add-book-page .form-group select:focus {
+  border-color: #ff4757;
+  background: rgba(60, 60, 60, 0.9);
+  box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.2);
+  transform: translateY(-2px);
+  color: white;
+  outline: none;
+}
+
+/* Кнопки в темном стиле */
+body.add-book-page .btn {
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+body.add-book-page .btn-success {
+  background: linear-gradient(135deg, #ff4757, #ff6b6b);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+  color: white;
+}
+
+body.add-book-page .btn-secondary {
+  background: linear-gradient(135deg, #495057, #6c757d);
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+  color: white;
+}
+
+body.add-book-page .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+body.add-book-page .btn-success:hover {
+  background: linear-gradient(135deg, #ff3838, #ff5252);
+  box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6);
+}
+
+body.add-book-page .btn-secondary:hover {
+  background: linear-gradient(135deg, #3d4348, #5a6268);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.6);
+}
+
+/* Контейнер для действий формы */
+body.add-book-page .form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Анимации для драматического эффекта */
+body.add-book-page .form-container {
+  animation: darkFormAppear 0.8s ease-out;
+}
+
+@keyframes darkFormAppear {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Эффект пульсации для иконки в хедере */
+body.add-book-page header h1 i {
+  animation: pulseGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+  from {
+    text-shadow: 0 0 5px rgba(255, 71, 87, 0.7);
+  }
+  to {
+    text-shadow: 0 0 15px rgba(255, 71, 87, 1), 0 0 20px rgba(255, 71, 87, 0.8);
+  }
+}
+
+
+
+
+
+
+
+
+
+

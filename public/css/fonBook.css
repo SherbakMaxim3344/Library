@@ -4,9 +4,7 @@ body.books-page {
   background-color: #2a4a6a;
   
   /* Основной фон */
-  background-image: 
-    /* linear-gradient(rgba(42, 74, 106, 0.85), rgba(42, 74, 106, 0.9)), */
-    url('/public/images/galadria.jpg');
+  background-image: url('/public/images/galadria.jpg');
   
   background-size: cover;
   background-position: center center;
@@ -27,16 +25,131 @@ body.books-page main {
   z-index: 1;
 }
 
-/* Стили для карточек в сине-серых тонах */
+/* Стили для карточек в темных полупрозрачных тонах */
 body.books-page .library-stats,
 body.books-page .filters-section,
 body.books-page .book-card,
 body.books-page .book-detail-container {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(30, 30, 60, 0.85) !important;
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   border-radius: 12px;
+  color: #e0e0e0;
+}
+
+/* Улучшаем читаемость текста в карточках */
+body.books-page .library-stats h2,
+body.books-page .filters-section h3,
+body.books-page .books-section h3 {
+  color: #e0e0e0 !important;
+  background: rgba(40, 40, 80, 0.9) !important;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 2px solid #667eea;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+body.books-page .book-card h4 {
+  color: #e0e0e0 !important;
+  border-left: 4px solid #667eea;
+  padding-left: 10px;
+}
+
+/* Статистика */
+body.books-page .stat-item {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: #e0e0e0;
+}
+
+body.books-page .stat-label {
+  color: #b0b0b0 !important;
+}
+
+body.books-page .stat-item .total { color: #667eea !important; }
+body.books-page .stat-item .available { color: #28a745 !important; }
+body.books-page .stat-item .borrowed { color: #ffc107 !important; }
+body.books-page .stat-item .expiring { color: #dc3545 !important; }
+
+/* Фильтры */
+body.books-page .filter-group label,
+body.books-page .sort-group label {
+  color: #e0e0e0 !important;
+}
+
+body.books-page .filter-group select,
+body.books-page .sort-group select {
+  background: rgba(30, 30, 60, 0.9) !important;
+  border: 2px solid #667eea;
+  border-radius: 6px;
+  color: #e0e0e0 !important;
+}
+
+body.books-page .filter-group select:focus,
+body.books-page .sort-group select:focus {
+  border-color: #764ba2;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+/* Статусы книг */
+body.books-page .status.available {
+  background: rgba(39, 174, 96, 0.2) !important;
+  color: #27ae60 !important;
+  border: 1px solid rgba(39, 174, 96, 0.4);
+}
+
+body.books-page .status.borrowed {
+  background: rgba(243, 156, 18, 0.2) !important;
+  color: #f39c12 !important;
+  border: 1px solid rgba(243, 156, 18, 0.4);
+}
+
+/* Детали книги */
+body.books-page .book-details p {
+  color: #e0e0e0 !important;
+}
+
+/* УВЕЛИЧЕНИЕ ФИЛЬТРОВ И СОРТИРОВКИ */
+body.books-page .filters-section {
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+body.books-page .filter-group,
+body.books-page .sort-group {
+  margin-bottom: 1.5rem;
+}
+
+body.books-page .filter-group label,
+body.books-page .sort-group label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  display: block;
+}
+
+body.books-page .filter-group select,
+body.books-page .sort-group select {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+body.books-page .filter-group select:focus,
+body.books-page .sort-group select:focus {
+  border-color: #764ba2;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
 }
 
 /* ГРАДИЕНТ ДЛЯ ШАПКИ В ТОН ФОНУ */
@@ -100,155 +213,6 @@ body.books-page nav a i {
   filter: drop-shadow(0 0 8px rgba(232, 244, 253, 0.4));
 }
 
-/* Улучшаем читаемость текста в карточках */
-body.books-page .library-stats h2,
-body.books-page .filters-section h3,
-body.books-page .books-section h3 {
-  color: #2c3e50;
-  background: white;
-  padding: 1rem 1.5rem;
-  border-radius: 10px;
-  text-align: center;
-  margin: 1.5rem 0;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: 2px solid #3498db;
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
-body.books-page .book-card h4 {
-  color: #2c3e50;
-  border-left: 4px solid #3498db;
-  padding-left: 10px;
-}
-
-/* Статистика */
-body.books-page .stat-item {
-  background: rgba(52, 152, 219, 0.1);
-  border: 1px solid rgba(52, 152, 219, 0.2);
-  border-radius: 10px;
-}
-
-body.books-page .stat-item .total { color: #3498db; }
-body.books-page .stat-item .available { color: #27ae60; }
-body.books-page .stat-item .borrowed { color: #f39c12; }
-body.books-page .stat-item .expiring { color: #e74c3c; }
-
-/* Кнопки в синих тонах */
-body.books-page .btn-info { 
-  background: #3498db; 
-  color: white;
-}
-
-body.books-page .btn-success { 
-  background: #27ae60; 
-  color: white;
-}
-
-body.books-page .btn-warning { 
-  background: #f39c12; 
-  color: white;
-}
-
-body.books-page .btn-danger { 
-  background: #e74c3c; 
-  color: white;
-}
-
-body.books-page .btn-secondary { 
-  background: #95a5a6; 
-  color: white;
-}
-
-/* Фильтры */
-body.books-page .filter-group select,
-body.books-page .sort-group select {
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid #bdc3c7;
-  border-radius: 6px;
-  color: #2c3e50;
-}
-
-body.books-page .filter-group select:focus,
-body.books-page .sort-group select:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
-
-/* Статусы книг */
-body.books-page .status.available {
-  background: rgba(39, 174, 96, 0.15);
-  color: #27ae60;
-  border: 1px solid rgba(39, 174, 96, 0.3);
-}
-
-body.books-page .status.borrowed {
-  background: rgba(243, 156, 18, 0.15);
-  color: #f39c12;
-  border: 1px solid rgba(243, 156, 18, 0.3);
-}
-
-
-/* УВЕЛИЧЕНИЕ ФИЛЬТРОВ И СОРТИРОВКИ */
-body.books-page .filters-section {
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-}
-
-body.books-page .filter-group,
-body.books-page .sort-group {
-  margin-bottom: 1.5rem;
-}
-
-body.books-page .filter-group label,
-body.books-page .sort-group label {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 0.8rem;
-  display: block;
-}
-
-body.books-page .filter-group select,
-body.books-page .sort-group select {
-  width: 100%;
-  padding: 12px 16px;
-  font-size: 1.1rem;
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid #3498db;
-  border-radius: 8px;
-  color: #2c3e50;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-body.books-page .filter-group select:focus,
-body.books-page .sort-group select:focus {
-  border-color: #2980b9;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
-  transform: translateY(-2px);
-}
-
-/* Для мобильных устройств */
-@media (max-width: 768px) {
-  body.books-page .filters-section {
-    padding: 1.2rem;
-    margin: 1rem 0;
-  }
-  
-  body.books-page .filter-group select,
-  body.books-page .sort-group select {
-    padding: 10px 14px;
-    font-size: 1rem;
-  }
-  
-  body.books-page .filter-group label,
-  body.books-page .sort-group label {
-    font-size: 1.1rem;
-  }
-}
-
-
 /* ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ */
 @media (max-width: 768px) {
   body.books-page {
@@ -258,7 +222,7 @@ body.books-page .sort-group select:focus {
   body.books-page .library-stats,
   body.books-page .filters-section,
   body.books-page .book-card {
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(30, 30, 60, 0.9) !important;
     backdrop-filter: blur(8px);
     margin: 0.5rem;
   }

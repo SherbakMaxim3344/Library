@@ -2,10 +2,11 @@
 
 /* Header */
 header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: -webkit-linear-gradient(90deg, #000000,#08002e,#000242,#340000,#6f0000);background: linear-gradient(90deg, #000000,#08002e,#000242,#340000,#760101);
   color: white;
   padding: 1rem 2rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border-bottom: 2px solid #000000; 
 }
 
 header h1 {

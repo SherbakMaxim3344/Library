@@ -135,7 +135,7 @@ html
                         i.fas.fa-user
                       button.btn.btn-warning(onclick=`returnBook('${book.id}')` title="Вернуть книгу")
                         i.fas.fa-undo
-                    button.btn.btn-danger(onclick=`confirmDelete('${book.id}', '${safeTitle}')` title="Удалить книгу")
+                    button.btn.btn-danger(onclick=`showDeleteConfirmDialog('${book.id}', '${safeTitle}')` title="Удалить книгу")
                       i.fas.fa-trash
 
               .book-details
@@ -216,6 +216,33 @@ dialog#editBookDialog.modal
           i.fas.fa-check
           |  Сохранить изменения
 
+//- Модальное окно для подтверждения удаления книги
+dialog#deleteConfirmDialog.modal
+  .modal-content
+    .modal-header
+      h3.modal-title
+        i.fas.fa-exclamation-triangle
+        |  Подтверждение удаления
+      button.close(type="button" onclick="closeDeleteConfirmDialog()") &times;
+    
+    .delete-confirm-content
+      .warning-icon
+        i.fas.fa-trash-alt
+      .warning-message
+        h4#deleteBookTitle
+        p Вы уверены, что хотите удалить эту книгу из библиотеки?
+        .warning-note
+          i.fas.fa-exclamation-circle
+          | Это действие нельзя отменить!
+    
+    .modal-actions
+      button.btn.btn-secondary(type="button" onclick="closeDeleteConfirmDialog()")
+        i.fas.fa-times
+        |  Отмена
+      button.btn.btn-danger(type="button" onclick="confirmDeleteAction()")
+        i.fas.fa-trash
+        |  Удалить книгу
+        
 //- Модальное окно для выдачи книги
 dialog#borrowDialog.modal
   .modal-content
@@ -309,6 +336,8 @@ dialog#readerInfoDialog.modal
 script.
   //- Переменная для хранения данных текущей книги
   let currentBookData = null;
+  //- Переменные для удаления
+  let bookToDelete = null;
   
   //- Инициализация при загрузке страницы
   document.addEventListener('DOMContentLoaded', function() {
@@ -321,7 +350,7 @@ script.
     // Добавляем обработчик формы редактирования
     document.getElementById('editBookForm').addEventListener('submit', handleEditBook);
     
-    // ДОБАВЛЯЕМ ОБРАБОТЧИК ФОРМЫ ВЫДАЧИ КНИГИ
+    // Обработчик формы выдачи книги
     const borrowForm = document.getElementById('borrowForm');
     if (borrowForm) {
       borrowForm.addEventListener('submit', handleBorrowBook);
@@ -334,18 +363,56 @@ script.
     updateUrgentLabels();
   });
   
-  //- НОВАЯ ФУНКЦИЯ: Обработка выдачи книги
+  //- Функция для показа диалога удаления
+  function showDeleteConfirmDialog(bookId, bookTitle) {
+    bookToDelete = bookId;
+    const dialog = document.getElementById('deleteConfirmDialog');
+    document.getElementById('deleteBookTitle').textContent = `"${bookTitle}"`;
+    dialog.showModal();
+  }
+  
+  //- Функция для закрытия диалога удаления
+  function closeDeleteConfirmDialog() {
+    const dialog = document.getElementById('deleteConfirmDialog');
+    dialog.close();
+    bookToDelete = null;
+  }
+  
+  //- Функция для подтверждения удаления
+  function confirmDeleteAction() {
+    if (!bookToDelete) return;
+    
+    fetch(`/books/${bookToDelete}/delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Ошибка сервера');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // ВСЕГДА закрываем диалог и обновляем список, независимо от сообщения с сервера
+      closeDeleteConfirmDialog();
+      applyFilters();
+    })
+    .catch(error => {
+      console.error('Ошибка при удалении:', error);
+      closeDeleteConfirmDialog();
+      applyFilters();
+    });
+  }
+  
+  //- Обработка выдачи книги
   function handleBorrowBook(e) {
     e.preventDefault();
-    console.log('Форма выдачи книги отправлена!');
     
     const bookId = document.getElementById('borrowBookId').value;
     const readerName = document.getElementById('readerName').value.trim();
     const readerEmail = document.getElementById('readerEmail').value.trim();
     const readerPhone = document.getElementById('readerPhone').value.trim();
     const dueDate = document.getElementById('dueDate').value;
-    
-    console.log('Данные для выдачи:', { bookId, readerName, readerEmail, readerPhone, dueDate });
     
     // Валидация
     if (!readerName) {
@@ -380,28 +447,19 @@ script.
       })
     })
     .then(response => {
-      console.log('Статус ответа сервера:', response.status);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error('Ошибка сервера');
       }
       return response.json();
     })
     .then(data => {
-      console.log('Ответ сервера:', data);
-      if (data.success) {
-        alert('✅ Книга успешно выдана читателю: ' + readerName);
-        closeBorrowDialog();
-        // Принудительное обновление страницы
-        setTimeout(() => {
-          location.reload();
-        }, 500);
-      } else {
-        alert('❌ Ошибка: ' + data.message);
-      }
+      closeBorrowDialog();
+      applyFilters();
     })
     .catch(error => {
-      console.error('Ошибка сети:', error);
-      alert('❌ Ошибка сети: ' + error.message);
+      console.error('Ошибка при выдаче книги:', error);
+      closeBorrowDialog();
+      applyFilters();
     });
   }
   
@@ -426,7 +484,6 @@ script.
       })
       .catch(error => {
         console.error('Ошибка фильтрации:', error);
-        alert('Ошибка при загрузке книг');
         // При ошибке - перезагружаем страницу старым способом
         window.location.href = `/books?filter=${filter}&sort=${sort}`;
       })
@@ -501,7 +558,7 @@ script.
                     <i class="fas fa-undo"></i>
                   </button>`
                 }
-                <button class="btn btn-danger" onclick="confirmDelete('${book.id}', '${safeTitle}')" title="Удалить книгу">
+                <button class="btn btn-danger" onclick="showDeleteConfirmDialog('${book.id}', '${safeTitle}')" title="Удалить книгу">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -618,19 +675,20 @@ script.
         genre: genre
       })
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert('✅ Книга успешно обновлена');
-        closeEditBookDialog();
-        // Обновляем список книг через AJAX
-        applyFilters();
-      } else {
-        alert('❌ Ошибка: ' + data.message);
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Ошибка сервера');
       }
+      return response.json();
+    })
+    .then(data => {
+      closeEditBookDialog();
+      applyFilters();
     })
     .catch(error => {
-      alert('❌ Ошибка сети: ' + error.message);
+      console.error('Ошибка при редактировании:', error);
+      closeEditBookDialog();
+      applyFilters();
     });
   }
 
@@ -768,38 +826,24 @@ script.
     });
   });
   
-  //- Остальные функции
-  function confirmDelete(bookId, bookTitle) {
-    if (confirm(`🗑️ Вы уверены, что хотите удалить книгу "${bookTitle}"?`)) {
-      fetch(`/books/${bookId}/delete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('✅ ' + data.message);
-          // Обновляем фильтры через AJAX вместо перезагрузки
-          applyFilters();
-        } else {
-          alert('❌ Ошибка: ' + data.message);
-        }
-      });
-    }
-  }
-  
   function returnBook(bookId) {
-    if (confirm('📚 Вернуть книгу в библиотеку?')) {
-      fetch(`/books/${bookId}/return`, {
-        method: 'POST'
-      })
-      .then(response => response.json())
-      .then(data => {
-        alert('✅ ' + data.message);
-        // Обновляем фильтры через AJAX вместо перезагрузки
-        applyFilters();
-      });
-    }
+    // Заменяем confirm на наше модальное окно или просто выполняем действие
+    fetch(`/books/${bookId}/return`, {
+      method: 'POST'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Ошибка сервера');
+      }
+      return response.json();
+    })
+    .then(data => {
+      applyFilters();
+    })
+    .catch(error => {
+      console.error('Ошибка при возврате книги:', error);
+      applyFilters();
+    });
   }
   
   //- Функция для проверки срочности возврата (на клиенте)

@@ -1,26 +1,6 @@
 {
   "books": [
     {
-      "id": "1",
-      "title": "JavaScript для начинающих",
-      "author": "Иван Иванов",
-      "year": 2022,
-      "genre": "Программирование",
-      "isAvailable": true,
-      "borrower": null,
-      "dueDate": null
-    },
-    {
-      "id": "2",
-      "title": "Node.js в действии",
-      "author": "Петр Петров",
-      "year": 2021,
-      "genre": "Программирование",
-      "isAvailable": false,
-      "borrower": "Мария Сидорова",
-      "dueDate": "2024-11-15"
-    },
-    {
       "id": "5",
       "title": "Преступление и наказание",
       "author": "Федор Достоевский",
@@ -31,31 +11,17 @@
       "dueDate": "2024-10-30"
     },
     {
-      "id": "1760208359250",
-      "title": "Takes It All",
-      "author": "God",
-      "year": 1000,
-      "genre": "История",
-      "isAvailable": false,
-      "borrower": "Ivan Colivan Hazarov\\vich",
-      "dueDate": "2025-10-12",
-      "addedDate": "2025-10-11",
-      "readerEmail": "ivan@yandex.com",
-      "readerPhone": "+1241245125",
-      "borrowedDate": "2025-10-11"
-    },
-    {
       "id": "1760208752968",
       "title": "В поисках Бога",
       "author": "Чарльз Дарвин",
       "year": 1325,
       "genre": "Фантастика",
-      "isAvailable": false,
-      "borrower": "Блаженный Денис Святославович",
-      "dueDate": "6666-06-06",
+      "isAvailable": true,
+      "borrower": null,
+      "dueDate": null,
       "addedDate": "2025-10-11",
-      "readerEmail": "denisloshok@mail.ru",
-      "readerPhone": "+6666666666",
+      "readerEmail": "",
+      "readerPhone": "",
       "borrowedDate": "2025-10-11"
     },
     {
@@ -68,6 +34,17 @@
       "borrower": null,
       "dueDate": null,
       "addedDate": "2025-10-11"
+    },
+    {
+      "id": "1760208752970",
+      "title": "java vs js",
+      "author": "Сергей Анатольевич",
+      "year": 2014,
+      "genre": "Программирование",
+      "isAvailable": true,
+      "borrower": null,
+      "dueDate": null,
+      "addedDate": "2025-10-13"
     }
   ]
 }
